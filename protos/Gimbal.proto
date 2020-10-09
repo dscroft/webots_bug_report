@@ -1,0 +1,202 @@
+PROTO Gimbal [
+  field SFVec3f    translation     0 1 0                 # Is `Transform.translation`.
+  field SFRotation rotation        0 1 0 0               # Is `Transform.rotation`.
+  field SFString   name            "Looker"         # Is `Solid.name`.
+  field SFString   controller      "looker"  # Is `Robot.controller`.
+  field MFString   controllerArgs  []                    # Is `Robot.controllerArgs`.
+  field SFString   customData      ""                    # Is `Robot.customData`.
+  field SFBool     supervisor      FALSE                 # Is `Robot.supervisor`.
+  field SFBool     synchronization TRUE                  # Is `Robot.synchronization`.
+  #field SFColor    color           1 0.45 0              # Is `PBRAppearance.baseColor`.
+  field MFNode     extensionSlot        []                    # Extends the arm with new nodes in the hand slot.
+  #field SFBool     staticBase      FALSE                 # Defines if the robot base should be pinned to the static environment.
+  field SFFloat size 0.5
+  
+  field SFNode appearance PBRAppearance {
+                      baseColor  1 0.45 0
+                      roughness 0.2
+                      metalness 0
+                    }
+]
+{
+  %{
+    local barThickness = fields.size.value / 10
+    local plateThickness = barThickness / 2
+    local plateRadius = fields.size.value / 2
+    local size = fields.size.value
+  }%
+
+  Robot 
+  {
+    translation IS translation
+    rotation IS rotation
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    name IS name
+    children 
+    [  
+      HingeJoint 
+      {
+        jointParameters HingeJointParameters 
+        {
+          axis 0 1 0
+          anchor 0 0 0
+        }
+        device 
+        [
+          RotationalMotor 
+          {
+            name "yaw motor"
+          }
+          PositionSensor 
+          {
+            name "yaw position"
+          }
+        ]
+        endPoint Solid 
+        {
+          translation 0 0 0
+          rotation 0 0 0 0
+          children 
+          [
+            DEF ARMATURE Group {
+              children [
+                Shape {
+                  appearance IS appearance
+                  geometry Cylinder {
+                    height %{=plateThickness}%
+                    radius %{=plateRadius}%
+                  }
+                }
+                Transform
+                {
+                  translation %{=size/2}% 0 0
+                  children [
+                    Shape {
+                      appearance IS appearance
+                      geometry Box {
+                        size %{=size}% %{=barThickness}% %{=barThickness}%
+                      }
+                    }
+                  ]
+                }
+                Transform {
+                  translation %{=size}% %{=size/2}% 0 
+                  rotation 0 0 1 1.57079632679
+                  children [
+                    Shape {
+                      appearance IS appearance
+                      geometry Box {
+                        size %{=size}% %{=barThickness}% %{=barThickness}%
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+             
+            HingeJoint 
+            {
+              jointParameters HingeJointParameters 
+              {
+                axis 1 0 0
+                anchor 0 %{=size}% 0
+              }
+              device 
+              [
+                RotationalMotor 
+                {
+                  name "pitch motor"
+                }
+                PositionSensor 
+                {
+                  name "pitch position"
+                }
+              ]
+              endPoint Solid  
+              {
+                translation %{=size}% %{=size}% 0
+                rotation 0.577351 -0.577351 0.577351 2.09439
+                children 
+                [
+                  USE ARMATURE
+                  
+                  HingeJoint
+                  {
+                    jointParameters HingeJointParameters
+                    {
+                      axis 1 0 0
+                      anchor 0 %{=size}% 0
+                    }
+                    device
+                    [
+                      RotationalMotor
+                      {
+                        name "roll motor"
+                      }
+                      PositionSensor
+                      {
+                        name "roll position"
+                      }
+                    ]
+                    endPoint Solid
+                    {
+                      translation %{=size}% %{=size}% 0
+                      rotation 0.577351 -0.577351 0.577351 2.09439
+                      children
+                      [
+                        DEF MOUNT Group {
+                          children [
+                            Shape {
+                              appearance IS appearance
+                              geometry Cylinder {
+                                height %{=plateThickness}%
+                                radius %{=plateRadius}%
+                              }
+                            }
+                            Transform
+                            {
+                              translation 0 %{=size/2}% 0
+                              children [
+                                Shape {
+                                  appearance IS appearance
+                                  geometry Box {
+                                    size %{=barThickness}% %{=size*0.9}% %{=barThickness}%
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        
+                        Transform 
+                        {
+                          translation 0 %{=size}% 0
+                          rotation 0.577351 -0.577351 0.577351 2.09439
+                          children 
+                          [
+                            InertialUnit
+                            {
+                            }
+                          
+                            Group
+                            {
+                              children IS extensionSlot
+                            }
+                          ]
+                        }                        
+                      ]
+                    }
+                  }
+                ]
+              }
+            }              
+          ]
+        }
+      }
+    ] 
+  }
+}

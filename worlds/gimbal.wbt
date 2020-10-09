@@ -1,0 +1,71 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.8603372951148921 -0.5066894171371266 0.05554793601593276 0.12369936009242596
+  position -20.018567594602917 0.9060637438164024 51.0729733054448
+  follow "rectangle arena"
+}
+RectangleArena {
+  floorSize 40 40
+  wallHeight 15
+}
+WoodenPalletStack {
+  translation -8.89762 -1.77636e-15 -8.86466
+  rotation 0 1 0 -0.785395307179586
+}
+WoodenPalletStack {
+  translation 9.71331 -1.77636e-15 8.24732
+  rotation 0 1 0 -0.785395307179586
+  name "wooden pallet stack(1)"
+}
+WoodenPalletStack {
+  translation 8.02345 -1.77636e-15 9.78157
+  rotation 0 1 0 -0.785395307179586
+  name "wooden pallet stack(2)"
+}
+WoodenBox {
+  translation 0 1 0
+  size 0.6 2 0.6
+}
+TexturedBackground {
+  texture "noon_building_overcast"
+}
+Gimbal {
+  hidden position_0_0 0.7853981633974483
+  hidden rotation_1 0 1 0 0.7853981633974484
+  hidden position_2_0 -0.565486677646162
+  hidden rotation_3 0.43401382881008593 -0.43401487593591254 0.789470128546954 1.805013756089903
+  translation 0 2 0
+  name "gimbal"
+  controller "image_to_cloud"
+  synchronization FALSE
+  extensionSlot [
+    Lidar {
+      name "rangeimage lidar"
+      fieldOfView 2.0944
+      verticalFieldOfView 0.523599
+      numberOfLayers 60
+      near 1
+      minRange 2
+      maxRange 40
+      spherical FALSE
+    }
+    Lidar {
+      name "pointcloud lidar"
+      rotationStep 0.1
+      fieldOfView 2.0944
+      verticalFieldOfView 0.523599
+      numberOfLayers 60
+      near 1
+      minRange 2
+      maxRange 40
+    }
+    RangeFinder {
+      fieldOfView 2.0944
+      width 128
+      maxRange 40
+    }
+  ]
+}
